@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Comprehensive framework for pre-trained machine learning algorithms plant disease detector</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#03031a; --bg2:#071124;
+  --card:rgba(255,255,255,0.03); --muted:#9fbfaa;
+  --accent:#6ef0c3; --accent2:#5a8bff;
+  --text:#e6f7ff; --panel-border:rgba(255,255,255,0.06);
+  --success:#caffdf; --pred-bg:#071724; --pred-text:#e6fff0;
+  --danger:#ff6b6b; --warn:#ffb86b;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Poppins",sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--text);padding:22px}
+.container{max-width:1200px;margin:0 auto}
+.header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.logo{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#042e1a}
+.title h1{margin:0;font-size:18px;line-height:1.15;text-shadow:0 6px 20px rgba(0,200,138,0.08)}
+.title p{margin:4px 0 0 0;color:var(--muted);font-size:13px}
+
+/* subtle animated grid/glow background */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:0.12;background:radial-gradient(ellipse at 10% 10%, rgba(77,255,143,0.08), transparent 8%), radial-gradient(ellipse at 90% 80%, rgba(0,200,90,0.06), transparent 12%);
+}
+@keyframes pulseAccent{0%{filter:drop-shadow(0 0 12px rgba(0,200,90,0.06))}50%{filter:drop-shadow(0 0 18px rgba(77,255,143,0.12))}100%{filter:drop-shadow(0 0 12px rgba(0,200,90,0.06))}}
+.logo svg{animation:pulseAccent 4s ease-in-out infinite}
+
+/* layout */
+.grid{display:grid;grid-template-columns:1fr 420px;gap:18px}
+@media(max-width:1000px){.grid{grid-template-columns:1fr}}
+
+/* panels */
+.panel{background:rgba(255,255,255,0.02);border:1px solid var(--panel-border);padding:16px;border-radius:12px}
+.top-tabs{display:flex;gap:8px;background:rgba(255,255,255,0.02);padding:6px;border-radius:10px;align-items:center}
+.tab{padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:600}
+.tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#042e1a}
+
+/* inputs */
+label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
+textarea, input[type="file"], select, input[type="number"]{width:100%;padding:10px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text);font-size:14px}
+.row{display:flex;gap:12px;align-items:center;margin-top:10px}
+.btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#042e1a;border:none;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+.badge{padding:6px 10px;border-radius:999px;background:rgba(0,200,90,0.08);color:var(--success);font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:8px}
+
+/* models table */
+.table{width:100%;border-collapse:separate;border-spacing:0 8px;margin-top:10px}
+.tr{background:rgba(255,255,255,0.02);border-radius:10px;overflow:hidden}
+.tr td,.tr th{padding:10px 12px;font-size:13px}
+.thead{color:var(--muted);font-size:12px}
+
+/* prediction area */
+.pred-wrap{margin-top:14px}
+.pred-card{background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:var(--text);padding:18px;border-radius:14px;box-shadow:0 8px 30px rgba(5,10,20,0.6);border:1px solid var(--panel-border);backdrop-filter: blur(6px)}
+.pred-card h3{margin:0;font-size:20px}
+.pred-meta{font-size:13px;color:var(--muted);margin-top:10px}
+.pred-badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;margin-bottom:8px}
+.pred-card.ok{background:linear-gradient(135deg, rgba(18,60,40,0.7), rgba(6,80,50,0.8));color:var(--pred-text)}
+.pred-card.low{background:linear-gradient(135deg, rgba(80,55,20,0.6), rgba(110,70,20,0.45));color:#fff}
+.pred-card.gibberish{background:linear-gradient(135deg, rgba(80,10,20,0.6), rgba(120,20,30,0.5));color:#fff}
+.pred-suggest{margin-top:10px;font-size:13px;color:rgba(255,255,255,0.9)}
+.pred-confidence{font-family:ui-monospace,Menlo,monospace;margin-top:8px;color:rgba(255,255,255,0.9)}
+.pred-animate{animation:popIn 260ms cubic-bezier(.2,.9,.2,1)}
+@keyframes popIn{from{transform:translateY(6px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+
+/* footer */
+.note{font-size:12px;color:var(--muted);margin-top:12px}
+
+/* small helpers */
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:#deffee}
+.error{color:#ffb4b4;margin-top:8px}
+.small{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo" aria-hidden="true">
+        <!-- simple SVG mark for a cleaner, modern look -->
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0" stop-color="#00f28a"/>
+              <stop offset="1" stop-color="#47ffd6"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="24" height="24" rx="5" fill="url(#g1)"/>
+          <path d="M6 15c1-3 5-6 9-6" stroke="#042e1a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="title">
+        <h1>Comprehensive framework for pre-trained machine learning algorithms plant disease detector</h1>
+        <p>Text • Image • Quantitative — choose a model and run fast predictions</p>
+      </div>
+      <div style="flex:1"></div>
+      <div id="server-status" class="small">Server: unknown</div>
+    </div>
+
+    <div class="top-tabs panel">
+      <div class="tab active" data-target="pane-text">Text</div>
+      <div class="tab" data-target="pane-image">Image</div>
+      <div class="tab" data-target="pane-quant">Quantitative</div>
+    </div>
+
+    <div class="grid" style="margin-top:12px">
+      <!-- left -->
+      <div class="panel" id="left-panel">
+        <label for="model-select">Choose model</label>
+        <div class="row">
+          <select id="model-select"></select>
+          <div id="acc-badge" class="badge">Accuracy —</div>
+        </div>
+
+        <!-- text pane -->
+        <div id="pane-text" class="pane active" style="margin-top:12px">
+          <label for="text-input">Describe crop symptoms</label>
+          <textarea id="text-input" rows="5" placeholder="e.g. leaves turning yellow with brown spots"></textarea>
+          <div class="row" style="margin-top:10px">
+            <button id="btn-text" class="btn">Predict (Text)</button>
+            <div id="text-error" class="error"></div>
+          </div>
+        </div>
+
+        <!-- image pane -->
+        <div id="pane-image" class="pane" style="margin-top:12px;display:none">
+          <label for="img-file">Upload image</label>
+          <input id="img-file" type="file" accept="image/*">
+          <div class="row" style="margin-top:10px">
+            <button id="btn-image" class="btn">Predict (Image)</button>
+            <div id="img-error" class="error"></div>
+          </div>
+        </div>
+
+        <!-- quant pane -->
+        <div id="pane-quant" class="pane" style="margin-top:12px;display:none">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            <div>
+              <label>Soil pH</label>
+              <input id="q-ph" type="number" step="0.1" placeholder="6.5">
+            </div>
+            <div>
+              <label>Temperature °C</label>
+              <input id="q-temp" type="number" step="0.1" placeholder="27.5">
+            </div>
+            <div>
+              <label>Humidity %</label>
+              <input id="q-hum" type="number" step="0.1" placeholder="70">
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button id="btn-quant" class="btn">Predict (Quant)</button>
+            <div id="quant-error" class="error"></div>
+          </div>
+        </div>
+
+        <div class="pred-wrap" id="pred-wrap" style="display:none">
+          <div class="pred-card" id="pred-card">
+            <div id="pred-badge" class="pred-badge" style="display:none"></div>
+            <h3 id="pred-label">—</h3>
+            <div id="pred-confidence" class="pred-confidence"></div>
+            <div id="pred-model" class="mono"></div>
+            <div class="pred-meta" id="pred-meta"></div>
+            <div id="pred-suggest" class="pred-suggest"></div>
+              <div style="margin-top:12px">
+                <button id="btn-rephrase" class="btn" style="display:none;padding:8px 12px">Rephrase</button>
+              </div>
+          </div>
+        </div>
+
+        <div class="note">Models are read from the server. If accuracy shows “—” the server didn't provide accuracy metadata.</div>
+      </div>
+
+      <!-- right -->
+      <div class="panel">
+        <h3 style="margin-top:0">Available models</h3>
+        <table class="table" id="models-table">
+          <thead>
+            <tr class="thead"><th>Algorithm</th><th>Feature</th><th>Accuracy</th><th>Vectorizer</th><th>OK</th></tr>
+          </thead>
+          <tbody id="models-body"></tbody>
+        </table>
+        <div style="margin-top:12px">
+          <div class="small">Available vectorizers on server: <span id="vec-list">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;text-align:center;color:var(--muted);font-size:13px">
+      © 2025 Agro AI • running on <code>/api</code>
+    </div>
+  </div>
+
+<script>
+/* Helpers */
+const pct = (a)=>{
+  if(a===undefined || a===null || a==='' ) return '—';
+  let n = Number(a);
+  if(isNaN(n)) return a;
+  return (n*100).toFixed(2) + '%';
+};
+
+const apiBase = ''; // relative - server running on same host/port
+
+/* Tabs */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(x=>x.style.display='none');
+    t.classList.add('active');
+    document.getElementById(t.dataset.target).style.display='block';
+  });
+});
+
+/* Fetch models */
+async function fetchModels(){
+  try{
+    const r = await fetch(apiBase + '/api/models');
+    if(!r.ok) throw new Error('Bad response ' + r.status);
+    const json = await r.json();
+    // support both {models: [...], available_vectorizers: [...] } and array fallback
+    const models = json.models || json;
+    const vecs = json.available_vectorizers || [];
+    return {models, vecs};
+  }catch(e){
+    console.error('fetchModels error', e);
+    throw e;
+  }
+}
+
+function populateModelsList(models, vecs){
+  const sel = document.getElementById('model-select');
+  const body = document.getElementById('models-body');
+  const vecList = document.getElementById('vec-list');
+  sel.innerHTML=''; body.innerHTML='';
+  vecList.textContent = vecs.length ? vecs.join(', ') : '—';
+
+  models.forEach(m=>{
+    const opt = document.createElement('option');
+    opt.value = m.filename;
+    const accText = m.accuracy ? pct(m.accuracy) : '—';
+    opt.textContent = `${(m.feature_selector||'-')} • ${(m.algorithm||m.filename.replace('.joblib',''))} — ${accText}`;
+    sel.appendChild(opt);
+
+    const tr = document.createElement('tr'); tr.className='tr';
+    tr.innerHTML = `
+      <td>${m.algorithm || m.filename.replace('.joblib','')}</td>
+      <td class="mono">${m.feature_selector||''}</td>
+      <td class="mono">${accText}</td>
+      <td class="mono">${m.expected_vectorizer||''}</td>
+      <td style="font-weight:700;color:${m.compatible? '#00ff8a':'#ff9b9b'}">${m.compatible? 'YES':'NO'}</td>
+    `;
+    body.appendChild(tr);
+  });
+
+  // set badge
+  sel.addEventListener('change', ()=>updateAccBadge(models));
+  if(models.length) { sel.value = models[0].filename; updateAccBadge(models); }
+}
+
+function updateAccBadge(models){
+  const sel = document.getElementById('model-select');
+  const badge = document.getElementById('acc-badge');
+  const m = models.find(x=>x.filename===sel.value) || {};
+  badge.textContent = m.accuracy ? 'Accuracy ' + pct(m.accuracy) : 'Accuracy —';
+}
+
+/* Predict text */
+async function predictText(){
+  const text = document.getElementById('text-input').value.trim();
+  const sel = document.getElementById('model-select').value;
+  const err = document.getElementById('text-error');
+  err.textContent = '';
+  if(!text){ err.textContent = 'Enter a description'; return; }
+  // show loading
+  document.getElementById('pred-wrap').style.display='none';
+  try{
+    const r = await fetch(apiBase + '/api/predict', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ text, model_filename: sel })
+    });
+    if(!r.ok){
+      const j = await r.json().catch(()=>({error:'server error'}));
+      err.textContent = j.error || JSON.stringify(j);
+      return;
+    }
+    const j = await r.json();
+    // handle server-side errors or low-confidence responses
+    // helper to render the modern result card
+    function renderResultCard(data, state){
+      const card = document.getElementById('pred-card');
+      const wrap = document.getElementById('pred-wrap');
+      const badge = document.getElementById('pred-badge');
+      const label = document.getElementById('pred-label');
+      const confEl = document.getElementById('pred-confidence');
+      const modelEl = document.getElementById('pred-model');
+      const meta = document.getElementById('pred-meta');
+      const suggest = document.getElementById('pred-suggest');
+
+      // reset classes
+      card.classList.remove('ok','low','gibberish','pred-animate');
+      void card.offsetWidth; // restart animation
+      card.classList.add('pred-animate');
+
+      const rephraseBtn = document.getElementById('btn-rephrase');
+      rephraseBtn.style.display = 'none';
+
+      if(state === 'gibberish'){
+        card.classList.add('gibberish');
+        badge.style.display = 'inline-block'; badge.textContent = 'Invalid input'; badge.style.background = 'var(--danger)';
+        label.textContent = data.message || 'Input looks like gibberish';
+        confEl.textContent = '';
+        modelEl.textContent = '';
+        suggest.textContent = data.hint || 'Try: "Leaves turning yellow with brown spots"';
+        // show rephrase button that inserts suggestion into textarea
+        rephraseBtn.style.display = 'inline-block';
+        rephraseBtn.onclick = ()=>{ document.getElementById('text-input').value = suggest.textContent; document.getElementById('text-input').focus(); };
+      } else if(state === 'low'){
+        card.classList.add('low');
+        badge.style.display = 'inline-block'; badge.textContent = 'Low confidence'; badge.style.background = 'var(--warn)';
+        label.textContent = 'Possible: ' + (data.prediction || '—');
+        confEl.textContent = data.confidence!=null?('Confidence: '+ Number(data.confidence).toFixed(3)) : '';
+        modelEl.textContent = 'Model: ' + (data.used_model || sel) + '  •  vectorizer: ' + (data.vectorizer_used||'—');
+        suggest.textContent = data.message || 'Try rephrasing or add more detail (crop, symptoms, duration).';
+        rephraseBtn.style.display = 'inline-block';
+        rephraseBtn.onclick = ()=>{ document.getElementById('text-input').value = suggest.textContent; document.getElementById('text-input').focus(); };
+      } else {
+        card.classList.add('ok');
+        badge.style.display = 'inline-block'; badge.textContent = 'Prediction'; badge.style.background = 'linear-gradient(90deg,var(--accent),var(--accent2))';
+        label.textContent = data.prediction || '—';
+        confEl.textContent = data.confidence!=null?('Confidence: '+ Number(data.confidence).toFixed(3)) : '';
+        modelEl.textContent = 'Model: ' + (data.used_model || sel) + '  •  vectorizer: ' + (data.vectorizer_used||'—');
+        suggest.textContent = data.message || '';
+      }
+      meta.textContent = '';
+      wrap.style.display = 'block';
+      // focus textarea for quick re-entry when low or gibberish
+      if(state !== 'ok'){
+        document.getElementById('text-input').focus();
+      }
+    }
+
+    if(j && j.error){
+      if(j.error === 'gibberish'){
+        renderResultCard({message: j.message, hint: 'Example: Leaves yellow with brown spots, wilting, or dark lesions.'}, 'gibberish');
+        return;
+      }
+      if(j.error === 'low_confidence'){
+        renderResultCard(j, 'low');
+        return;
+      }
+      // other server-provided errors
+      err.textContent = j.message || j.error || JSON.stringify(j);
+      return;
+    }
+
+    // normal prediction
+    renderResultCard(j, 'ok');
+  }catch(e){
+    console.error(e);
+    err.textContent = 'Network error: could not contact server';
+  }
+}
+
+/* Image and quant placeholders */
+function predictImage(){
+  const f = document.getElementById('img-file').files[0];
+  const err = document.getElementById('img-error'); err.textContent='';
+  if(!f){ err.textContent='Choose an image.'; return; }
+  // simulate
+  setTimeout(()=>{
+    document.getElementById('pred-label').textContent = 'Simulated: Leaf disease';
+    document.getElementById('pred-confidence').textContent = 'Confidence: 0.82';
+    document.getElementById('pred-model').textContent = 'Model: image_model (coming soon)';
+    document.getElementById('pred-wrap').style.display='block';
+  }, 500);
+}
+
+function predictQuant(){
+  const ph = document.getElementById('q-ph').value;
+  const temp = document.getElementById('q-temp').value;
+  const hum = document.getElementById('q-hum').value;
+  const err = document.getElementById('quant-error'); err.textContent='';
+  if(!ph && !temp && !hum){ err.textContent='Provide at least one value.'; return; }
+  setTimeout(()=>{
+    document.getElementById('pred-label').textContent = 'Simulated: Risk Level — Medium';
+    document.getElementById('pred-confidence').textContent = 'Confidence: 0.68';
+    document.getElementById('pred-model').textContent = 'Model: quant_model (coming soon)';
+    document.getElementById('pred-wrap').style.display='block';
+  }, 400);
+}
+
+/* Init */
+async function init(){
+  // wire buttons
+  document.getElementById('btn-text').addEventListener('click', predictText);
+  document.getElementById('btn-image').addEventListener('click', predictImage);
+  document.getElementById('btn-quant').addEventListener('click', predictQuant);
+
+  // load models
+  try{
+    const res = await fetchModels();
+    const models = res.models || res;
+    const vecs = res.vecs || res.available_vectorizers || [];
+    populateModelsList(models, vecs);
+    document.getElementById('server-status').textContent = 'Server: OK';
+  }catch(e){
+    document.getElementById('server-status').textContent = 'Server: cannot load models';
+    // fallback: show only variance model if present client-side
+    const fallback = [{
+      filename:'variance__Logistic_reg.joblib', feature_selector:'variance', algorithm:'Logistic_reg', accuracy:'1.0', expected_vectorizer:'variance_tfidf.joblib', compatible:true
+    }];
+    populateModelsList(fallback, ['variance_tfidf.joblib']);
+  }
+}
+init();
+</script>
+</body>
+</html>
