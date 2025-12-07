@@ -1,0 +1,26 @@
+# Core dependencies
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+joblib
+
+# Web Framework (Flask API)
+flask
+requests
+
+# Image Processing & Deep Learning
+tensorflow>=2.13.0
+Pillow
+opencv-python
+
+# Optional: For Jupyter notebooks
+notebook
+
+# Optional: Advanced image model formats
+# Uncomment if you need ONNX, TFLite, or PyTorch support
+# onnxruntime
+# tflite-runtime
+# torch
+# torchvision

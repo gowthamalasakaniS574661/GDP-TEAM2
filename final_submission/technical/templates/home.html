@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Disease Prediction System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg1: #03031a;
+            --bg2: #071124;
+            --card: rgba(255,255,255,0.03);
+            --accent: #6ef0c3;
+            --accent2: #5a8bff;
+            --text: #e6f7ff;
+            --muted: #9fbfaa;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, var(--bg1), var(--bg2));
+            color: var(--text);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 42px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: var(--muted);
+            font-size: 18px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(110,240,195,0.3);
+        }
+        
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .card p {
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        
+        .model-count {
+            background: rgba(110,240,195,0.1);
+            color: var(--accent);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .arrow {
+            color: var(--accent);
+            font-size: 24px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌿 Plant Disease Detection System</h1>
+            <p>AI-Powered Multi-Model Disease Prediction Platform</p>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">90</div>
+                    <div class="stat-label">Total Models</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Prediction Types</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">15</div>
+                    <div class="stat-label">Disease Classes</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cards">
+            <div class="card" onclick="window.location.href='/text'">
+                <div class="card-icon">📝</div>
+                <h2>Text-Based Prediction</h2>
+                <p>Describe symptoms in natural language and get instant disease predictions using advanced NLP models.</p>
+                <div class="card-footer">
+                    <span class="model-count">48 Models Available</span>
+                    <span class="arrow">→</span>
+                </div>
+            </div>
+            
+            <div class="card" onclick="window.location.href='/quant'">
+                <div class="card-icon">📊</div>
+                <h2>Quantitative Prediction</h2>
+                <p>Input numeric features and measurements for precise disease classification using ensemble methods.</p>
+                <div class="card-footer">
+                    <span class="model-count">37 Models Available</span>
+                    <span class="arrow">→</span>
+                </div>
+            </div>
+            
+            <div class="card" onclick="window.location.href='/image'">
+                <div class="card-icon">🖼️</div>
+                <h2>Image-Based Prediction</h2>
+                <p>Upload plant leaf images for visual disease detection using state-of-the-art deep learning models.</p>
+                <div class="card-footer">
+                    <span class="model-count">5 Models Available</span>
+                    <span class="arrow">→</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

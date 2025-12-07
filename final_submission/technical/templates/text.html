@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-Based Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg1: #03031a; --bg2: #071124;
+            --accent: #6ef0c3; --accent2: #5a8bff;
+            --text: #e6f7ff; --muted: #9fbfaa;
+            --success: #caffdf; --danger: #ff6b6b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, var(--bg1), var(--bg2));
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.08); }
+        h1 { font-size: 32px; }
+        .panel {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        select, textarea {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .btn {
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            color: #042e1a;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            background: rgba(110,240,195,0.05);
+            border: 1px solid rgba(110,240,195,0.2);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+        }
+        .result.show { display: block; }
+        .result h3 {
+            color: var(--success);
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .result-item:last-child { border-bottom: none; }
+        .result-label { color: var(--muted); }
+        .result-value { font-weight: 600; color: var(--text); }
+        .confidence-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            transition: width 0.5s ease;
+        }
+        .error {
+            background: rgba(255,107,107,0.1);
+            border: 1px solid rgba(255,107,107,0.3);
+            color: var(--danger);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+        .error.show { display: block; }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .loading.show { display: block; }
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Text-Based Prediction</h1>
+            <a href="/" class="back-btn">← Back to Home</a>
+        </div>
+        
+        <div class="panel">
+            <label for="model">Select Model (48 Available)</label>
+            <select id="model">
+                <option value="">Loading models...</option>
+            </select>
+            
+            <label for="text">Describe the Symptoms</label>
+            <textarea id="text" placeholder="Example: yellow spots on leaves, wilting stems, brown patches..."></textarea>
+            
+            <button class="btn" onclick="predict()" id="predictBtn">Predict Disease</button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing symptoms...</p>
+            </div>
+            
+            <div class="error" id="error"></div>
+            
+            <div class="result" id="result">
+                <h3>✅ Prediction Result</h3>
+                <div class="result-item">
+                    <span class="result-label">Disease:</span>
+                    <span class="result-value" id="prediction">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Confidence:</span>
+                    <span class="result-value" id="confidence">-</span>
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill"></div>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Model Used:</span>
+                    <span class="result-value" id="modelUsed">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load models on page load
+        fetch('/api/models')
+            .then(r => r.json())
+            .then(data => {
+                const select = document.getElementById('model');
+                select.innerHTML = '<option value="">-- Select a Model --</option>';
+                data.models.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.filename;
+                    opt.textContent = m.filename;
+                    select.appendChild(opt);
+                });
+            })
+            .catch(err => console.error('Error loading models:', err));
+        
+        async function predict() {
+            const model = document.getElementById('model').value;
+            const text = document.getElementById('text').value.trim();
+            const btn = document.getElementById('predictBtn');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const result = document.getElementById('result');
+            
+            // Reset
+            error.classList.remove('show');
+            result.classList.remove('show');
+            
+            // Validation
+            if (!model) {
+                error.textContent = 'Please select a model';
+                error.classList.add('show');
+                return;
+            }
+            if (!text) {
+                error.textContent = 'Please describe the symptoms';
+                error.classList.add('show');
+                return;
+            }
+            
+            // Show loading
+            btn.disabled = true;
+            loading.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model_filename: model, text: text })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('prediction').textContent = data.prediction;
+                    document.getElementById('confidence').textContent = (data.confidence * 100).toFixed(2) + '%';
+                    document.getElementById('confidenceFill').style.width = (data.confidence * 100) + '%';
+                    document.getElementById('modelUsed').textContent = data.used_model || data.model_filename;
+                    result.classList.add('show');
+                } else {
+                    error.textContent = data.message || 'Prediction failed';
+                    error.classList.add('show');
+                }
+            } catch (err) {
+                error.textContent = 'Error: ' + err.message;
+                error.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>

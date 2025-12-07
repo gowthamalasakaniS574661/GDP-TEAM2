@@ -1,0 +1,68 @@
+Artifacts dir: MLALGO/text_model_artifacts
+Found model files: ['kbest_mi_500__BernoulliNB.joblib', 'kbest_mi_500__BernoulliNB_pipeline.joblib', 'kbest_mi_500__ComplementNB.joblib', 'kbest_mi_500__ComplementNB_pipeline.joblib', 'kbest_mi_500__KNN_5.joblib', 'kbest_mi_500__KNN_5_pipeline.joblib', 'kbest_mi_500__LinearSVC.joblib', 'kbest_mi_500__LinearSVC_pipeline.joblib', 'kbest_mi_500__Logistic_reg.joblib', 'kbest_mi_500__Logistic_reg_pipeline.joblib', 'kbest_mi_500__MultinomialNB.joblib', 'kbest_mi_500__MultinomialNB_pipeline.joblib', 'kbest_mi_500__SGD_log.joblib', 'kbest_mi_500__SGD_log_pipeline.joblib', 'kbest_mi_500_kbest.joblib', 'kbest_mi_500_kbest_pipeline.joblib', 'percentile_mi_20__BernoulliNB.joblib', 'percentile_mi_20__ComplementNB.joblib', 'percentile_mi_20__KNN_5.joblib', 'percentile_mi_20__LinearSVC.joblib', 'percentile_mi_20__Logistic_reg.joblib', 'percentile_mi_20__MultinomialNB.joblib', 'percentile_mi_20__SGD_log.joblib', 'selectfrom_extratrees__BernoulliNB.joblib', 'selectfrom_extratrees__ComplementNB.joblib', 'selectfrom_extratrees__KNN_5.joblib', 'selectfrom_extratrees__LinearSVC.joblib', 'selectfrom_extratrees__Logistic_reg.joblib', 'selectfrom_extratrees__MultinomialNB.joblib', 'selectfrom_extratrees__SGD_log.joblib', 'svd_dense_100__ExtraTrees_100.joblib', 'svd_dense_100__LightGBM_100.joblib', 'svd_dense_100__Logistic_lbfgs.joblib', 'svd_dense_100__RandomForest_100.joblib', 'variance__BernoulliNB.joblib', 'variance__BernoulliNB_pipeline.joblib', 'variance__ComplementNB.joblib', 'variance__ComplementNB_pipeline.joblib', 'variance__KNN_5.joblib', 'variance__KNN_5_pipeline.joblib', 'variance__LinearSVC.joblib', 'variance__LinearSVC_pipeline.joblib', 'variance__Logistic_reg.joblib', 'variance__Logistic_reg_pipeline.joblib', 'variance__MultinomialNB.joblib', 'variance__MultinomialNB_pipeline.joblib', 'variance__SGD_log.joblib', 'variance__SGD_log_pipeline.joblib']
+Available vectorizers: ['kbest_mi_500_tfidf.joblib', 'percentile_mi_20_tfidf.joblib', 'selectfrom_extratrees_tfidf.joblib', 'svd_dense_100_tfidf.joblib', 'tfidf.joblib', 'variance_tfidf.joblib']
+ * Serving Flask app 'app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5002
+[33mPress CTRL+C to quit[0m
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeClassifier from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator AdaBoostClassifier from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator ExtraTreeClassifier from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator ExtraTreesClassifier from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator GaussianNB from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeRegressor from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator DummyClassifier from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator GradientBoostingClassifier from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator KNeighborsClassifier from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LogisticRegression from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator RandomForestClassifier from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator SGDClassifier from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator SVC from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator OneHotEncoder from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator SelectFromModel from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator SelectKBest from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator LabelEncoder from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/Users/user/Desktop/text based/GDP-TEAM2/.venv/lib/python3.13/site-packages/sklearn/base.py:442: InconsistentVersionWarning: Trying to unpickle estimator SelectPercentile from version 1.6.1 when using version 1.7.2. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+127.0.0.1 - - [03/Dec/2025 13:21:47] "GET /api/quant_models HTTP/1.1" 200 -
+127.0.0.1 - - [03/Dec/2025 13:21:56] "POST /api/quant_models/refresh HTTP/1.1" 200 -
+127.0.0.1 - - [03/Dec/2025 13:22:18] "GET /api/quant_models HTTP/1.1" 200 -

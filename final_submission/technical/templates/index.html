@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Comprehensive framework for pre-trained machine learning algorithms plant disease detector</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#03031a; --bg2:#071124;
+  --card:rgba(255,255,255,0.03); --muted:#9fbfaa;
+  --accent:#6ef0c3; --accent2:#5a8bff;
+  --text:#e6f7ff; --panel-border:rgba(255,255,255,0.06);
+  --success:#caffdf; --pred-bg:#071724; --pred-text:#e6fff0;
+  --danger:#ff6b6b; --warn:#ffb86b;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Poppins",sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--text);padding:22px}
+.container{max-width:1200px;margin:0 auto}
+.header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.logo{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#042e1a}
+.title h1{margin:0;font-size:18px;line-height:1.15;text-shadow:0 6px 20px rgba(0,200,138,0.08)}
+.title p{margin:4px 0 0 0;color:var(--muted);font-size:13px}
+
+/* subtle animated grid/glow background */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:0.12;background:radial-gradient(ellipse at 10% 10%, rgba(77,255,143,0.08), transparent 8%), radial-gradient(ellipse at 90% 80%, rgba(0,200,90,0.06), transparent 12%);
+}
+@keyframes pulseAccent{0%{filter:drop-shadow(0 0 12px rgba(0,200,90,0.06))}50%{filter:drop-shadow(0 0 18px rgba(77,255,143,0.12))}100%{filter:drop-shadow(0 0 12px rgba(0,200,90,0.06))}}
+.logo svg{animation:pulseAccent 4s ease-in-out infinite}
+
+/* layout */
+.grid{display:grid;grid-template-columns:1fr 420px;gap:18px}
+@media(max-width:1000px){.grid{grid-template-columns:1fr}}
+
+/* panels */
+.panel{background:rgba(255,255,255,0.02);border:1px solid var(--panel-border);padding:16px;border-radius:12px}
+.top-tabs{display:flex;gap:8px;background:rgba(255,255,255,0.02);padding:6px;border-radius:10px;align-items:center}
+.tab{padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:600}
+.tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#042e1a}
+
+/* inputs */
+label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
+textarea, input[type="file"], select, input[type="number"]{width:100%;padding:10px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text);font-size:14px}
+.row{display:flex;gap:12px;align-items:center;margin-top:10px}
+.btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#042e1a;border:none;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+.badge{padding:6px 10px;border-radius:999px;background:rgba(0,200,90,0.08);color:var(--success);font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:8px}
+
+/* models table */
+.table{width:100%;border-collapse:separate;border-spacing:0 8px;margin-top:10px}
+.tr{background:rgba(255,255,255,0.02);border-radius:10px;overflow:hidden}
+.tr td,.tr th{padding:10px 12px;font-size:13px}
+.thead{color:var(--muted);font-size:12px}
+
+/* prediction area */
+.pred-wrap{margin-top:14px}
+.pred-card{background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:var(--text);padding:18px;border-radius:14px;box-shadow:0 8px 30px rgba(5,10,20,0.6);border:1px solid var(--panel-border);backdrop-filter: blur(6px)}
+.pred-card h3{margin:0;font-size:20px}
+.pred-meta{font-size:13px;color:var(--muted);margin-top:10px}
+.pred-badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;margin-bottom:8px}
+.pred-card.ok{background:linear-gradient(135deg, rgba(18,60,40,0.7), rgba(6,80,50,0.8));color:var(--pred-text)}
+.pred-card.low{background:linear-gradient(135deg, rgba(80,55,20,0.6), rgba(110,70,20,0.45));color:#fff}
+.pred-card.gibberish{background:linear-gradient(135deg, rgba(80,10,20,0.6), rgba(120,20,30,0.5));color:#fff}
+.pred-suggest{margin-top:10px;font-size:13px;color:rgba(255,255,255,0.9)}
+.pred-confidence{font-family:ui-monospace,Menlo,monospace;margin-top:8px;color:rgba(255,255,255,0.9)}
+.pred-animate{animation:popIn 260ms cubic-bezier(.2,.9,.2,1)}
+@keyframes popIn{from{transform:translateY(6px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+
+/* footer */
+.note{font-size:12px;color:var(--muted);margin-top:12px}
+
+/* debug panel */
+.debug-panel{margin-top:12px;background:rgba(0,0,0,0.18);border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;font-size:12px;color:var(--muted)}
+.debug-entries{max-height:160px;overflow:auto;padding:6px;display:flex;flex-direction:column;gap:6px}
+.debug-entry{background:rgba(255,255,255,0.015);padding:6px;border-radius:6px;font-family:ui-monospace,Menlo,monospace;color:#dfffe8}
+.debug-meta{font-size:11px;color:var(--muted);margin-bottom:4px}
+.debug-controls{display:flex;gap:8px;align-items:center;margin-top:8px}
+.debug-clear{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:6px 8px;border-radius:8px;cursor:pointer}
+
+/* small helpers */
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:#deffee}
+.error{color:#ffb4b4;margin-top:8px}
+.small{font-size:13px;color:var(--muted)}
+
+/* toast notifications */
+.toast-container{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.toast{min-width:220px;max-width:320px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,0.6);color:var(--text);border:1px solid rgba(255,255,255,0.04);box-shadow:0 6px 20px rgba(0,0,0,0.6);font-size:13px}
+.toast.success{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#042e1a}
+.toast.error{background:linear-gradient(90deg,#ff7b7b,#ffb3a7);color:#3a0202}
+.toast .ttl{display:block;font-size:11px;color:rgba(255,255,255,0.8);margin-top:6px}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo" aria-hidden="true">
+        <!-- simple SVG mark for a cleaner, modern look -->
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0" stop-color="#00f28a"/>
+              <stop offset="1" stop-color="#47ffd6"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="24" height="24" rx="5" fill="url(#g1)"/>
+          <path d="M6 15c1-3 5-6 9-6" stroke="#042e1a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="title">
+        <h1>Comprehensive framework for pre-trained machine learning algorithms plant disease detector</h1>
+        <p>Text • Image • Quantitative — choose a model and run fast predictions</p>
+      </div>
+      <div style="flex:1"></div>
+      <div id="server-status" class="small">Server: unknown</div>
+    </div>
+
+    <div class="top-tabs panel">
+      <div class="tab active" data-target="pane-text">Text</div>
+      <div class="tab" data-target="pane-image">Image</div>
+      <div class="tab" data-target="pane-quant">Quantitative</div>
+    </div>
+
+    <div class="grid" style="margin-top:12px">
+      <!-- left -->
+      <div class="panel" id="left-panel">
+        <label for="model-select">Choose model</label>
+        <div class="row">
+          <select id="model-select"></select>
+          <div id="acc-badge" class="badge">Accuracy —</div>
+        </div>
+
+        <!-- text pane -->
+        <div id="pane-text" class="pane active" style="margin-top:12px">
+          <label for="text-input">Describe crop symptoms</label>
+          <textarea id="text-input" rows="5" placeholder="e.g. leaves turning yellow with brown spots"></textarea>
+          <div class="row" style="margin-top:10px">
+            <button id="btn-text" class="btn">Predict (Text)</button>
+            <div id="text-error" class="error"></div>
+          </div>
+        </div>
+
+        <!-- image pane -->
+        <div id="pane-image" class="pane" style="margin-top:12px;display:none">
+          <label for="image-model-select">Choose image model</label>
+          <div class="row" style="margin-bottom:8px">
+            <select id="image-model-select"></select>
+            <div id="image-model-badge" class="badge">Image models</div>
+            <div id="image-model-info" style="margin-left:8px;font-size:12px;color:var(--muted)"></div>
+          </div>
+          <label for="img-file">Upload image</label>
+          <input id="img-file" type="file" accept="image/*">
+          <div id="image-info" class="small" style="margin-top:6px;color:var(--muted)">No image model selected.</div>
+          <div class="row" style="margin-top:10px">
+            <button id="btn-image" class="btn">Predict (Image)</button>
+            <div id="img-error" class="error"></div>
+          </div>
+        </div>
+
+        <!-- quant pane -->
+        <div id="pane-quant" class="pane" style="margin-top:12px;display:none">
+          <label for="quant-model-select">Choose quant model</label>
+          <div class="row" style="margin-bottom:8px">
+            <select id="quant-model-select"></select>
+            <div id="quant-model-badge" class="badge">Quant models</div>
+            <div id="quant-cached" style="margin-left:8px;font-size:12px;color:var(--muted)"></div>
+            <button id="quant-refresh" class="btn" style="margin-left:8px;padding:6px 8px;font-size:13px">Refresh</button>
+          </div>
+
+          <div id="quant-info" class="small" style="margin-bottom:8px;color:var(--muted)">No quant models discovered.</div>
+
+          <div id="quant-inputs" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            <!-- dynamic inputs will be rendered here -->
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <button id="btn-quant" class="btn">Predict (Quant)</button>
+            <div id="quant-error" class="error"></div>
+          </div>
+        </div>
+
+        <div class="pred-wrap" id="pred-wrap" style="display:none">
+          <div class="pred-card" id="pred-card">
+            <div id="pred-badge" class="pred-badge" style="display:none"></div>
+            <h3 id="pred-label">—</h3>
+            <div id="pred-confidence" class="pred-confidence"></div>
+            <div id="pred-model" class="mono"></div>
+            <div class="pred-meta" id="pred-meta"></div>
+            <div id="pred-suggest" class="pred-suggest"></div>
+              <div style="margin-top:12px">
+                <button id="btn-rephrase" class="btn" style="display:none;padding:8px 12px">Rephrase</button>
+              </div>
+          </div>
+        </div>
+
+  <div class="note">Models are discovered from the server via <code>/api</code>. If accuracy shows “—”, the server did not provide accuracy metadata for that model.</div>
+        
+        <div class="debug-panel" id="debug-panel" aria-live="polite">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700;color:var(--muted)">Debug log</div>
+            <div class="debug-controls">
+              <button id="debug-clear" class="debug-clear">Clear</button>
+            </div>
+          </div>
+          <div class="debug-entries" id="debug-entries" role="log"></div>
+        </div>
+      <!-- toast container for transient errors / success messages -->
+      <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+      </div>
+
+      <!-- right -->
+      <div class="panel">
+        <h3 style="margin-top:0">Available models</h3>
+        <table class="table" id="models-table">
+          <thead>
+            <tr class="thead"><th>Algorithm</th><th>Feature</th><th>Accuracy</th><th>Vectorizer</th><th>OK</th></tr>
+          </thead>
+          <tbody id="models-body"></tbody>
+        </table>
+        <div style="margin-top:12px">
+          <div class="small">Available vectorizers on server: <span id="vec-list">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;text-align:center;color:var(--muted);font-size:13px">
+      © 2025 Agro AI • running on <code>/api</code>
+    </div>
+  </div>
+
+<script>
+/* Helpers */
+const pct = (a)=>{
+  if(a===undefined || a===null || a==='' ) return '—';
+  let n = Number(a);
+  if(isNaN(n)) return a;
+  return (n*100).toFixed(2) + '%';
+};
+
+// client-side view of server confidence threshold (populated from /api/models response)
+let client_conf_threshold = null;
+
+// show a transient toast in bottom-right
+function showToast(msg, type='error', timeout=4500){
+  try{
+    const container = document.getElementById('toast-container');
+    if(!container) return;
+    const t = document.createElement('div'); t.className='toast ' + (type||'error');
+    t.textContent = msg;
+    const ttl = document.createElement('div'); ttl.className='ttl'; ttl.textContent = new Date().toLocaleTimeString();
+    t.appendChild(ttl);
+    container.appendChild(t);
+    // auto-remove
+    setTimeout(()=>{ t.style.transition = 'opacity 220ms'; t.style.opacity = '0'; setTimeout(()=>t.remove(),220); }, timeout);
+  }catch(e){ console.warn('showToast failed', e); }
+}
+
+const apiBase = ''; // relative - server running on same host/port
+let quant_expected_features = 3; // default UI has 3 inputs
+let quant_models_list = [];
+
+function renderQuantInputs(nOrNames){
+  const container = document.getElementById('quant-inputs');
+  container.innerHTML = '';
+  const isNames = Array.isArray(nOrNames);
+  const n = isNames ? nOrNames.length : (Number.isInteger(nOrNames) ? nOrNames : 3);
+  const cols = Math.min(3, n || 3);
+  container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  for(let i=0;i<n;i++){
+    const wrap = document.createElement('div');
+    const label = document.createElement('label');
+    const name = isNames ? String(nOrNames[i] || `Feature ${i+1}`) : (i===0? 'Feature 1':'Feature ' + (i+1));
+    label.textContent = name;
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.step = 'any';
+    input.name = 'quant-feature';
+    input.placeholder = '';
+    // small accessibility id
+    input.id = 'qf-' + i;
+    wrap.appendChild(label);
+    wrap.appendChild(input);
+    container.appendChild(wrap);
+  }
+}
+
+/* Tabs */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(x=>x.style.display='none');
+    t.classList.add('active');
+    document.getElementById(t.dataset.target).style.display='block';
+  });
+});
+
+/* Fetch models */
+async function fetchModels(){
+  try{
+    const r = await fetch(apiBase + '/api/models');
+    if(!r.ok) throw new Error('Bad response ' + r.status);
+    const json = await r.json();
+    // support both {models: [...], available_vectorizers: [...] } and array fallback
+    const models = json.models || json;
+    const vecs = json.available_vectorizers || [];
+    return {models, vecs};
+  }catch(e){
+    console.error('fetchModels error', e);
+    throw e;
+  }
+}
+
+function populateModelsList(models, vecs){
+  const sel = document.getElementById('model-select');
+  const body = document.getElementById('models-body');
+  const vecList = document.getElementById('vec-list');
+  sel.innerHTML=''; body.innerHTML='';
+  vecList.textContent = vecs.length ? vecs.join(', ') : '—';
+
+  models.forEach(m=>{
+    const opt = document.createElement('option');
+    opt.value = m.filename;
+    const accText = m.accuracy ? pct(m.accuracy) : '—';
+    opt.textContent = `${(m.feature_selector||'-')} • ${(m.algorithm||m.filename.replace('.joblib',''))} — ${accText}`;
+    sel.appendChild(opt);
+
+    const tr = document.createElement('tr'); tr.className='tr';
+    tr.innerHTML = `
+      <td>${m.algorithm || m.filename.replace('.joblib','')}</td>
+      <td class="mono">${m.feature_selector||''}</td>
+      <td class="mono">${accText}</td>
+      <td class="mono">${m.expected_vectorizer||''}</td>
+      <td style="font-weight:700;color:${m.compatible? '#00ff8a':'#ff9b9b'}">${m.compatible? 'YES':'NO'}</td>
+    `;
+    body.appendChild(tr);
+  });
+
+  // set badge
+  sel.addEventListener('change', ()=>updateAccBadge(models));
+  if(models.length) { sel.value = models[0].filename; updateAccBadge(models); }
+}
+
+function updateAccBadge(models){
+  const sel = document.getElementById('model-select');
+  const badge = document.getElementById('acc-badge');
+  const m = models.find(x=>x.filename===sel.value) || {};
+  badge.textContent = m.accuracy ? 'Accuracy ' + pct(m.accuracy) : 'Accuracy —';
+}
+
+/* Predict text */
+async function predictText(){
+  const text = document.getElementById('text-input').value.trim();
+  const sel = document.getElementById('model-select').value;
+  const err = document.getElementById('text-error');
+  err.textContent = '';
+  if(!text){ err.textContent = 'Enter a description'; return; }
+  // show loading
+  document.getElementById('pred-wrap').style.display='none';
+  try{
+    const r = await fetch(apiBase + '/api/predict', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ text, model_filename: sel })
+    });
+    if(!r.ok){
+      const j = await r.json().catch(()=>({error:'server error'}));
+      err.textContent = j.error || JSON.stringify(j);
+      showToast(err.textContent || 'Server error', 'error');
+      return;
+    }
+    const j = await r.json();
+    // handle server-side errors or low-confidence responses
+    // helper to render the modern result card
+    function renderResultCard(data, state){
+      const card = document.getElementById('pred-card');
+      const wrap = document.getElementById('pred-wrap');
+      const badge = document.getElementById('pred-badge');
+      const label = document.getElementById('pred-label');
+      const confEl = document.getElementById('pred-confidence');
+      const modelEl = document.getElementById('pred-model');
+      const meta = document.getElementById('pred-meta');
+      const suggest = document.getElementById('pred-suggest');
+
+      // reset classes
+      card.classList.remove('ok','low','gibberish','pred-animate');
+      void card.offsetWidth; // restart animation
+      card.classList.add('pred-animate');
+
+      const rephraseBtn = document.getElementById('btn-rephrase');
+      rephraseBtn.style.display = 'none';
+
+      if(state === 'gibberish'){
+        card.classList.add('gibberish');
+        badge.style.display = 'inline-block'; badge.textContent = 'Invalid input'; badge.style.background = 'var(--danger)';
+        label.textContent = data.message || 'Input looks like gibberish';
+        confEl.textContent = '';
+        modelEl.textContent = '';
+        suggest.textContent = data.hint || 'Try: "Leaves turning yellow with brown spots"';
+        // show rephrase button that inserts suggestion into textarea
+        rephraseBtn.style.display = 'inline-block';
+        rephraseBtn.onclick = ()=>{ document.getElementById('text-input').value = suggest.textContent; document.getElementById('text-input').focus(); };
+      } else if(state === 'low') {
+        card.classList.add('low');
+        badge.style.display = 'inline-block'; badge.textContent = 'Low confidence'; badge.style.background = 'var(--warn)';
+        label.textContent = 'Possible: ' + (data.prediction || '—');
+        confEl.textContent = data.confidence!=null?('Confidence: '+ pct(data.confidence) + (client_conf_threshold!=null ? (' (threshold: '+pct(client_conf_threshold)+')') : '')) : '';
+        modelEl.textContent = 'Model: ' + (data.used_model || sel) + '  •  vectorizer: ' + (data.vectorizer_used||'—');
+        suggest.textContent = data.message || 'Try rephrasing or add more detail (crop, symptoms, duration).';
+        rephraseBtn.style.display = 'inline-block';
+        rephraseBtn.onclick = ()=>{ document.getElementById('text-input').value = suggest.textContent; document.getElementById('text-input').focus(); };
+      } else {
+        card.classList.add('ok');
+        badge.style.display = 'inline-block'; badge.textContent = 'Prediction'; badge.style.background = 'linear-gradient(90deg,var(--accent),var(--accent2))';
+        label.textContent = data.prediction || '—';
+        confEl.textContent = data.confidence!=null?('Confidence: '+ pct(data.confidence) + (client_conf_threshold!=null ? (' (threshold: '+pct(client_conf_threshold)+')') : '')) : '';
+        modelEl.textContent = 'Model: ' + (data.used_model || sel) + '  •  vectorizer: ' + (data.vectorizer_used||'—');
+        suggest.textContent = data.message || '';
+      }
+      meta.textContent = '';
+      wrap.style.display = 'block';
+      // focus textarea for quick re-entry when low or gibberish
+      if(state !== 'ok'){
+        document.getElementById('text-input').focus();
+      }
+    }
+
+        if(j && j.error){
+      if(j.error === 'gibberish'){
+        renderResultCard({message: j.message, hint: 'Example: Leaves yellow with brown spots, wilting, or dark lesions.'}, 'gibberish');
+        return;
+      }
+      if(j.error === 'low_confidence'){
+        renderResultCard(j, 'low');
+        return;
+      }
+      // other server-provided errors
+      err.textContent = j.message || j.error || JSON.stringify(j);
+      showToast(err.message || err.textContent || 'Prediction error', 'error');
+      return;
+    }
+
+    // normal prediction
+    renderResultCard(j, 'ok');
+  }catch(e){
+    console.error(e);
+    err.textContent = 'Network error: could not contact server';
+    showToast(err.textContent, 'error');
+  }
+}
+
+/* Image and quant placeholders */
+function predictImage(){
+  const f = document.getElementById('img-file').files[0];
+  const err = document.getElementById('img-error'); err.textContent='';
+  if(!f){ err.textContent='Choose an image.'; showToast(err.textContent,'error'); return; }
+  const select = document.getElementById('image-model-select');
+  const modelName = select && select.value ? select.value : null;
+  // build form data
+  const fd = new FormData();
+  fd.append('image', f);
+  if(modelName) fd.append('model_name', modelName);
+
+  // debug log request
+  debugLog('Request (image)', { model: modelName, filename: f.name });
+  const btn = document.getElementById('btn-image'); btn.disabled = true; const prior = btn.textContent; btn.textContent = 'Predicting...';
+  fetch(apiBase + '/api/predict_image', { method: 'POST', body: fd }).then(async res => {
+    const j = await res.json().catch(()=>({error:'invalid_json'}));
+    debugLog('Response (image)', { status: res.status, body: j });
+    if(!res.ok){
+      err.textContent = j.message || j.error || ('Server error: ' + res.status);
+      showToast(err.textContent || 'Image prediction failed', 'error');
+      btn.disabled = false; btn.textContent = prior; return;
+    }
+    if(j && j.error){ err.textContent = j.message || j.error; showToast(err.message || err.textContent || 'Prediction error','error'); btn.disabled=false; btn.textContent=prior; return; }
+
+    // success
+    document.getElementById('pred-label').textContent = j.prediction || String(j.prediction_index || '—');
+    document.getElementById('pred-confidence').textContent = j.confidence!=null ? ('Confidence: ' + pct(j.confidence) + (client_conf_threshold!=null ? (' (threshold: '+pct(client_conf_threshold)+')') : '')) : '';
+    document.getElementById('pred-model').textContent = 'Model: ' + (j.model || modelName || 'image_model');
+    document.getElementById('pred-wrap').style.display='block';
+    btn.disabled = false; btn.textContent = prior;
+  }).catch(e => {
+    console.error('predictImage error', e); err.textContent = 'Network error: could not contact server'; showToast(err.textContent,'error'); debugLog('FetchError', {error: String(e)}); btn.disabled = false; btn.textContent = prior;
+  });
+}
+
+function predictQuant(){
+  const err = document.getElementById('quant-error'); err.textContent='';
+  try{
+    // gather values from dynamically rendered inputs
+  }catch(e){ console.error('predictQuant client error', e); err.textContent = 'Client error: ' + (e && e.message ? e.message : String(e)); return; }
+  // gather values from dynamically rendered inputs
+  const inputs = Array.from(document.querySelectorAll('#quant-inputs input[name="quant-feature"]'));
+  const rawValues = inputs.map(i => (i.value || '').toString().trim());
+  // if user hasn't provided any values at all, don't send (avoid silent zero-padding predictions)
+  const anyProvided = rawValues.some(v => v !== '');
+  if(!anyProvided){
+    err.textContent = 'Provide at least one numeric value before predicting.';
+    showToast(err.textContent, 'error');
+    return;
+  }
+  const features = rawValues.map(v => v !== '' ? Number(v) : 0.0);
+  // pad to expected length only when some values were provided (we've checked anyProvided)
+  if(Number.isInteger(quant_expected_features) && quant_expected_features > features.length){
+    while(features.length < quant_expected_features) features.push(0.0);
+    const qi = document.getElementById('quant-info');
+    if(qi) qi.textContent = `Auto-padded features to length ${quant_expected_features} to match model expectations.`;
+  }
+  // include selected model name when calling server
+  const modelSelect = document.getElementById('quant-model-select');
+  const payload = { features };
+  if(modelSelect && modelSelect.value) payload.model_name = modelSelect.value;
+
+  // record to on-page debug log
+  debugLog('Request', payload);
+
+  // call server endpoint for quant models
+  const btn = document.getElementById('btn-quant');
+  btn.disabled = true;
+  const priorText = btn.textContent;
+  btn.textContent = 'Predicting...';
+  console.log('predictQuant payload', payload);
+  fetch(apiBase + '/api/predict_quant', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(async res => {
+    const j = await res.json().catch(()=>({error:'invalid_json'}));
+    debugLog('Response', { status: res.status, body: j });
+    if(!res.ok){
+      err.textContent = j.message || j.error || ('Server error: ' + res.status);
+      showToast(err.textContent || 'Server error', 'error');
+      btn.disabled = false; btn.textContent = priorText;
+      return;
+    }
+    if(j && j.error){
+      debugLog('Error', j);
+      err.textContent = j.message || j.error;
+      showToast(err.message || err.textContent || 'Model error', 'error');
+      btn.disabled = false; btn.textContent = priorText;
+      return;
+    }
+    // success
+    document.getElementById('pred-label').textContent = `Risk Level — ${j.prediction}`;
+  document.getElementById('pred-confidence').textContent = j.confidence!=null ? ('Confidence: ' + pct(j.confidence) + (client_conf_threshold!=null ? (' (threshold: '+pct(client_conf_threshold)+')') : '')) : '';
+    document.getElementById('pred-model').textContent = 'Model: ' + (j.model || 'quant_model');
+    document.getElementById('pred-wrap').style.display='block';
+    btn.disabled = false; btn.textContent = priorText;
+  }).catch(e => {
+    console.error('predictQuant error', e);
+    err.textContent = 'Network error: could not contact server';
+    showToast(err.textContent, 'error');
+    debugLog('FetchError', {error: String(e)});
+    btn.disabled = false; btn.textContent = priorText;
+  });
+}
+
+/* Debug log helpers */
+function debugLog(title, obj){
+  try{
+    const container = document.getElementById('debug-entries');
+    if(!container) return;
+    const ent = document.createElement('div'); ent.className='debug-entry';
+    const meta = document.createElement('div'); meta.className='debug-meta';
+    const ts = new Date().toLocaleTimeString();
+    meta.textContent = `${ts} — ${title}`;
+    const payload = document.createElement('div');
+    try{ payload.textContent = (typeof obj === 'string')? obj : JSON.stringify(obj, null, 2); }catch(e){ payload.textContent = String(obj); }
+    ent.appendChild(meta); ent.appendChild(payload);
+    container.prepend(ent);
+    // trim to 30 entries
+    while(container.children.length > 30) container.removeChild(container.lastChild);
+  }catch(e){ console.error('debugLog failed', e); }
+}
+document.getElementById('debug-clear').addEventListener('click', ()=>{ const c=document.getElementById('debug-entries'); if(c) c.innerHTML=''; });
+
+/* Init */
+async function init(){
+  // wire buttons
+  document.getElementById('btn-text').addEventListener('click', predictText);
+  document.getElementById('btn-image').addEventListener('click', predictImage);
+  document.getElementById('btn-quant').addEventListener('click', predictQuant);
+
+  // load models
+  try{
+    const res = await fetchModels();
+    const models = res.models || res;
+    const vecs = res.vecs || res.available_vectorizers || [];
+    // capture server-side confidence threshold when present
+    if(res && typeof res.confidence_threshold !== 'undefined') client_conf_threshold = Number(res.confidence_threshold);
+    populateModelsList(models, vecs);
+    document.getElementById('server-status').textContent = 'Server: OK';
+    // fetch quant models info (expected feature counts) so UI can adapt/pad inputs
+    try{
+      const rq = await fetch(apiBase + '/api/quant_models');
+      if(rq.ok){
+        const qj = await rq.json();
+        quant_models_list = qj.models || [];
+        // show cached indicator when server marks cached responses
+        const cachedEl = document.getElementById('quant-cached');
+        if(cachedEl){
+          if(qj.cached) cachedEl.innerHTML = '<span class="badge">Cached</span>'; else cachedEl.textContent = '';
+        }
+        const select = document.getElementById('quant-model-select');
+        select.innerHTML = '';
+          if(quant_models_list.length){
+          quant_models_list.forEach((m, idx) => {
+            const opt = document.createElement('option');
+            opt.value = m.filename;
+            opt.textContent = m.filename + (m.expected_features? ` (expects ${m.expected_features})` : '');
+            select.appendChild(opt);
+          });
+          // default to first
+          const first = quant_models_list[0];
+          document.getElementById('quant-model-badge').textContent = quant_models_list.length + ' models';
+          // prefer sidecar input_names when available
+          if(first && Array.isArray(first.input_names) && first.input_names.length){
+            quant_expected_features = first.input_names.length;
+            renderQuantInputs(first.input_names);
+            document.getElementById('quant-info').textContent = `Selected ${first.filename} — expects ${quant_expected_features} features.`;
+          } else if(first && Number.isInteger(first.expected_features)){
+            quant_expected_features = first.expected_features;
+            renderQuantInputs(quant_expected_features);
+            document.getElementById('quant-info').textContent = `Selected ${first.filename} — expects ${quant_expected_features} features.`;
+          } else {
+            quant_expected_features = 3; // fallback
+            renderQuantInputs(3);
+            document.getElementById('quant-info').textContent = `Selected ${first.filename} — expects ${quant_expected_features} features.`;
+          }
+          select.value = first.filename;
+          select.addEventListener('change', ()=>{
+            const sel = quant_models_list.find(x=>x.filename === select.value);
+            if(sel && Array.isArray(sel.input_names) && sel.input_names.length){
+              quant_expected_features = sel.input_names.length;
+              renderQuantInputs(sel.input_names);
+            } else if(sel && Number.isInteger(sel.expected_features)){
+              quant_expected_features = sel.expected_features;
+              renderQuantInputs(quant_expected_features);
+            } else {
+              quant_expected_features = 3;
+              renderQuantInputs(3);
+            }
+            document.getElementById('quant-info').textContent = `Selected ${select.value} — expects ${quant_expected_features} features.`;
+          });
+          // wire refresh button: clear server cache and reload models
+          const refreshBtn = document.getElementById('quant-refresh');
+          if(refreshBtn){
+            refreshBtn.onclick = async ()=>{
+              refreshBtn.disabled = true; refreshBtn.textContent = 'Refreshing...';
+              try{
+                await fetch(apiBase + '/api/quant_models/refresh', { method: 'POST' });
+                // re-fetch models
+                const r2 = await fetch(apiBase + '/api/quant_models');
+                if(r2.ok){
+                  const q2 = await r2.json();
+                  quant_models_list = q2.models || [];
+                  // update cached indicator
+                  const cachedEl2 = document.getElementById('quant-cached');
+                  if(cachedEl2){ cachedEl2.innerHTML = q2.cached ? '<span class="badge">Cached</span>' : ''; }
+                  // rebuild select and inputs (simplest: reload page state by calling init again)
+                  // but to avoid duplicating listeners, just repopulate select options and re-render inputs
+                  select.innerHTML = '';
+                  quant_models_list.forEach((m)=>{ const opt=document.createElement('option'); opt.value=m.filename; opt.textContent=m.filename + (m.expected_features? ` (expects ${m.expected_features})`: ''); select.appendChild(opt); });
+                  if(quant_models_list[0]){
+                    const first = quant_models_list[0];
+                    if(first && Array.isArray(first.input_names) && first.input_names.length){ renderQuantInputs(first.input_names); quant_expected_features = first.input_names.length; }
+                    else if(first && Number.isInteger(first.expected_features)){ renderQuantInputs(first.expected_features); quant_expected_features = first.expected_features; }
+                    else { renderQuantInputs(3); quant_expected_features = 3; }
+                    select.value = first.filename;
+                    document.getElementById('quant-info').textContent = `Selected ${first.filename} — expects ${quant_expected_features} features.`;
+                  }
+                }
+              }catch(e){ console.warn('refresh error', e); }
+              refreshBtn.disabled = false; refreshBtn.textContent = 'Refresh';
+            };
+          }
+        } else {
+          document.getElementById('quant-info').textContent = 'No quant models discovered.';
+          document.getElementById('quant-model-badge').textContent = 'No models';
+          // render default 3 inputs
+          renderQuantInputs(3);
+        }
+      }
+    }catch(e){ console.warn('Could not load quant model info', e); renderQuantInputs(3); }
+      // fetch image models list so UI can populate selector
+      try{
+        const ri = await fetch(apiBase + '/api/image_models');
+        if(ri.ok){
+          const ji = await ri.json();
+          const imgModels = ji.models || [];
+          const sel = document.getElementById('image-model-select');
+          sel.innerHTML = '';
+          if(imgModels.length){
+            imgModels.forEach(m => {
+              const opt = document.createElement('option'); opt.value = m.name; opt.textContent = m.name + (m.type? ` (${m.type})` : ''); sel.appendChild(opt);
+            });
+            const first = imgModels[0];
+            document.getElementById('image-model-badge').textContent = imgModels.length + ' models';
+            sel.value = first.name;
+            const info = document.getElementById('image-info');
+            if(first.input_size) info.textContent = `Input size: ${first.input_size[0]}x${first.input_size[1]}`;
+            else info.textContent = `Model: ${first.name} (${first.type||'image'})`;
+            if(first.has_fs_saved) info.textContent += ' • preproc saved';
+            if(first.labels && Array.isArray(first.labels) && first.labels.length){
+              info.textContent += ' • labels: ' + first.labels.slice(0,6).join(', ') + (first.labels.length>6? ', ...':'');
+            }
+            sel.addEventListener('change', ()=>{
+              const s = imgModels.find(x=>x.name===sel.value);
+              const info2 = document.getElementById('image-info');
+              if(s){
+                if(s.input_size) info2.textContent = `Input size: ${s.input_size[0]}x${s.input_size[1]}`;
+                else info2.textContent = `Model: ${s.name} (${s.type||'image'})`;
+                if(s.has_fs_saved) info2.textContent += ' • preproc saved';
+                if(s.labels && Array.isArray(s.labels) && s.labels.length){ info2.textContent += ' • labels: ' + s.labels.slice(0,6).join(', ') + (s.labels.length>6? ', ...':''); }
+              }
+            });
+          } else {
+            document.getElementById('image-model-badge').textContent = 'No models';
+            renderQuantInputs(3);
+          }
+        }
+      }catch(e){ console.warn('Could not load image models', e); }
+  }catch(e){
+    document.getElementById('server-status').textContent = 'Server: cannot load models';
+    showToast('Could not load models from server', 'error');
+    // fallback: show only variance model if present client-side
+    const fallback = [{
+      filename:'variance__Logistic_reg.joblib', feature_selector:'variance', algorithm:'Logistic_reg', accuracy:'1.0', expected_vectorizer:'variance_tfidf.joblib', compatible:true
+    }];
+    populateModelsList(fallback, ['variance_tfidf.joblib']);
+  }
+}
+init();
+</script>
+</body>
+</html>

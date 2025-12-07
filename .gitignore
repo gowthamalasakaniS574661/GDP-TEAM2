@@ -1,0 +1,17 @@
+# Google Drive shortcuts
+drive/
+*.gsheet
+*.gdoc
+*.gslides
+*.gform
+
+# Colab sample data
+sample_data/
+
+# Python cache files
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+artifacts/
+*.zip
+MLALGO/image_model_artifacts/
