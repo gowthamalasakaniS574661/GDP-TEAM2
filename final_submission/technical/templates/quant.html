@@ -197,20 +197,28 @@
             <label>Input Numeric Features</label>
             <div class="features-grid" id="featuresGrid">
                 <div class="feature-input">
-                    <label>Feature 1</label>
-                    <input type="number" class="feature" step="any" placeholder="0.0">
+                    <label>Temperature (°C)</label>
+                    <input type="number" class="feature" step="any" placeholder="e.g., 21.2">
                 </div>
                 <div class="feature-input">
-                    <label>Feature 2</label>
-                    <input type="number" class="feature" step="any" placeholder="0.0">
+                    <label>Humidity (%)</label>
+                    <input type="number" class="feature" step="any" placeholder="e.g., 55.0">
                 </div>
                 <div class="feature-input">
-                    <label>Feature 3</label>
-                    <input type="number" class="feature" step="any" placeholder="0.0">
+                    <label>Rainfall (mm)</label>
+                    <input type="number" class="feature" step="any" placeholder="e.g., 31.7">
                 </div>
                 <div class="feature-input">
-                    <label>Feature 4</label>
-                    <input type="number" class="feature" step="any" placeholder="0.0">
+                    <label>Soil pH</label>
+                    <input type="number" class="feature" step="any" placeholder="e.g., 6.6">
+                </div>
+                <div class="feature-input">
+                    <label>Lesion Size (mm)</label>
+                    <input type="number" class="feature" step="any" placeholder="e.g., 0">
+                </div>
+                <div class="feature-input">
+                    <label>Affected Area (%)</label>
+                    <input type="number" class="feature" step="any" placeholder="e.g., 0">
                 </div>
             </div>
             
@@ -259,6 +267,14 @@
                     opt.value = m.filename;
                     opt.textContent = m.filename;
                     opt.dataset.features = m.expected_features || 4;
+                    // store friendly input names if provided by server (sidecar .json)
+                    if (Array.isArray(m.input_names) && m.input_names.length) {
+                        try {
+                            opt.dataset.inputNames = JSON.stringify(m.input_names);
+                        } catch (e) {
+                            // ignore serialization errors
+                        }
+                    }
                     select.appendChild(opt);
                 });
             })
@@ -275,11 +291,24 @@
                 // Update feature inputs
                 const grid = document.getElementById('featuresGrid');
                 grid.innerHTML = '';
+                // If the option supplies friendly input names, use them
+                let inputNames = null;
+                if (selectedOption && selectedOption.dataset && selectedOption.dataset.inputNames) {
+                    try {
+                        inputNames = JSON.parse(selectedOption.dataset.inputNames);
+                    } catch (e) {
+                        inputNames = null;
+                    }
+                }
+
                 for (let i = 0; i < count; i++) {
                     const div = document.createElement('div');
                     div.className = 'feature-input';
+                    const labelText = (Array.isArray(inputNames) && typeof inputNames[i] === 'string' && inputNames[i].trim().length)
+                        ? inputNames[i]
+                        : `Feature ${i + 1}`;
                     div.innerHTML = `
-                        <label>Feature ${i + 1}</label>
+                        <label>${labelText}</label>
                         <input type="number" class="feature" step="any" placeholder="0.0">
                     `;
                     grid.appendChild(div);
