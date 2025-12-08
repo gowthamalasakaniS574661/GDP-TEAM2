@@ -970,6 +970,147 @@ def api_quant_models_refresh():
         return jsonify({"refreshed": False, "error": str(e)}), 500
 
 
+# Default quantitative feature names (from plant_disease_quantitative.csv)
+# These are the numeric feature columns used for training quant models
+QUANT_DEFAULT_FEATURE_NAMES = [
+    "Temperature (°C)",
+    "Humidity (%)",
+    "Rainfall (mm)",
+    "Soil pH",
+    "Lesion Size (mm)",
+    "Affected Area (%)"
+]
+
+# Mapping from CSV column names to friendly display names
+QUANT_CSV_TO_FRIENDLY = {
+    "Temperature_C": "Temperature (°C)",
+    "Humidity_Pct": "Humidity (%)",
+    "Rainfall_mm": "Rainfall (mm)",
+    "Soil_pH": "Soil pH",
+    "Lesion_Size_mm": "Lesion Size (mm)",
+    "Affected_Area_Pct": "Affected Area (%)"
+}
+
+
+@app.route("/api/quant_models/generate_sidecars", methods=["POST", "GET"])
+def api_generate_quant_sidecars():
+    """Auto-generate sidecar JSON files for all quant models in QUANT_MODELS_DIR.
+    Each sidecar contains 'input_names' with friendly feature labels.
+    
+    Optional query params or JSON body:
+      - csv_path: path to CSV file to read feature names from (default: uses QUANT_DEFAULT_FEATURE_NAMES)
+      - overwrite: if true, overwrite existing sidecar files (default: false)
+    
+    Returns: {"generated": count, "skipped": count, "errors": [...]}
+    """
+    try:
+        # Parse options from query params or JSON body
+        overwrite = False
+        csv_path = None
+        
+        if request.is_json:
+            payload = request.get_json(silent=True) or {}
+            overwrite = payload.get("overwrite", False)
+            csv_path = payload.get("csv_path")
+        else:
+            overwrite = request.args.get("overwrite", "false").lower() in ("true", "1", "yes")
+            csv_path = request.args.get("csv_path")
+        
+        # Determine feature names to use
+        feature_names = list(QUANT_DEFAULT_FEATURE_NAMES)  # default
+        
+        if csv_path and os.path.exists(csv_path):
+            try:
+                with open(csv_path, 'r', encoding='utf-8') as f:
+                    header_line = f.readline().strip()
+                    columns = [c.strip() for c in header_line.split(',')]
+                    # Filter to numeric feature columns (exclude ID, Species, Label columns)
+                    exclude = {'plant_id', 'plant_species', 'disease_label', 'label', 'id', 'species'}
+                    feature_cols = [c for c in columns if c.lower() not in exclude]
+                    # Map to friendly names
+                    feature_names = [QUANT_CSV_TO_FRIENDLY.get(c, c) for c in feature_cols]
+            except Exception as e:
+                # Fall back to defaults if CSV parsing fails
+                print(f"[generate_sidecars] CSV parse error: {e}, using defaults")
+                feature_names = list(QUANT_DEFAULT_FEATURE_NAMES)
+        
+        # Find quant models directory
+        quant_dir = QUANT_MODELS_DIR
+        if not os.path.isdir(quant_dir):
+            quant_dir = IMAGE_MODELS_DIR
+            if not os.path.isdir(quant_dir):
+                return jsonify({"error": "no_models_dir", "message": f"Models directory not found: {QUANT_MODELS_DIR}"}), 404
+        
+        # List all .joblib files
+        joblib_files = [f for f in os.listdir(quant_dir) if f.lower().endswith('.joblib')]
+        
+        generated = 0
+        skipped = 0
+        errors = []
+        
+        for jf in joblib_files:
+            try:
+                # Sidecar filename: model.joblib -> model.json
+                base = os.path.splitext(jf)[0]
+                sidecar_path = os.path.join(quant_dir, base + '.json')
+                
+                # Check if sidecar already exists
+                if os.path.exists(sidecar_path) and not overwrite:
+                    skipped += 1
+                    continue
+                
+                # Try to load model to get actual feature count
+                model_path = os.path.join(quant_dir, jf)
+                expected_features = None
+                try:
+                    m = joblib.load(model_path)
+                    if hasattr(m, 'n_features_in_'):
+                        expected_features = int(m.n_features_in_)
+                    elif hasattr(m, 'coef_'):
+                        expected_features = int(m.coef_.shape[1])
+                except Exception:
+                    pass
+                
+                # Determine input names based on expected features
+                if expected_features and expected_features <= len(feature_names):
+                    input_names = feature_names[:expected_features]
+                else:
+                    input_names = feature_names  # use all available names
+                
+                # Create sidecar JSON
+                sidecar_data = {
+                    "input_names": input_names,
+                    "expected_features": expected_features,
+                    "auto_generated": True,
+                    "generated_at": __import__('datetime').datetime.now().isoformat()
+                }
+                
+                with open(sidecar_path, 'w', encoding='utf-8') as sf:
+                    json.dump(sidecar_data, sf, indent=2)
+                
+                generated += 1
+                
+            except Exception as e:
+                errors.append({"file": jf, "error": str(e)})
+        
+        # Invalidate cache so next /api/quant_models call picks up new sidecars
+        global _quant_models_cache
+        _quant_models_cache['data'] = None
+        _quant_models_cache['ts'] = 0.0
+        
+        return jsonify({
+            "generated": generated,
+            "skipped": skipped,
+            "total_models": len(joblib_files),
+            "feature_names_used": feature_names,
+            "errors": errors if errors else None
+        })
+        
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": "generation_failed", "message": str(e)}), 500
+
+
 @app.route("/api/image_models/refresh", methods=["POST", "GET"])
 def api_image_models_refresh():
     """Invalidate the in-memory cache for image model discovery so subsequent calls re-scan artifacts.

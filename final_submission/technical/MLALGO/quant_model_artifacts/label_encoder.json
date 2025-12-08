@@ -1,0 +1,13 @@
+{
+  "input_names": [
+    "Temperature (\u00b0C)",
+    "Humidity (%)",
+    "Rainfall (mm)",
+    "Soil pH",
+    "Lesion Size (mm)",
+    "Affected Area (%)"
+  ],
+  "expected_features": null,
+  "auto_generated": true,
+  "generated_at": "2025-12-07T23:22:28.348155"
+}

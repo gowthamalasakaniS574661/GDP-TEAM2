@@ -1,0 +1,11 @@
+{
+  "input_names": [
+    "Temperature (\u00b0C)",
+    "Humidity (%)",
+    "Rainfall (mm)",
+    "Soil pH"
+  ],
+  "expected_features": 4,
+  "auto_generated": true,
+  "generated_at": "2025-12-07T23:22:28.501107"
+}

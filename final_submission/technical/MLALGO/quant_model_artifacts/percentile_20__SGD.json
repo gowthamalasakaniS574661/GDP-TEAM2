@@ -1,0 +1,9 @@
+{
+  "input_names": [
+    "Temperature (\u00b0C)",
+    "Humidity (%)"
+  ],
+  "expected_features": 2,
+  "auto_generated": true,
+  "generated_at": "2025-12-07T23:22:28.035779"
+}
