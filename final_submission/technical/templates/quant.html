@@ -291,6 +291,13 @@
                 // Update feature inputs
                 const grid = document.getElementById('featuresGrid');
                 grid.innerHTML = '';
+                // Default friendly name mappings for common feature sets
+                const defaultNameMap = {
+                    4: ['Temperature (°C)', 'Humidity (%)', 'Rainfall (mm)', 'Soil pH'],
+                    5: ['Temperature (°C)', 'Humidity (%)', 'Rainfall (mm)', 'Soil pH', 'Lesion Size (mm)'],
+                    6: ['Temperature (°C)', 'Humidity (%)', 'Rainfall (mm)', 'Soil pH', 'Lesion Size (mm)', 'Affected Area (%)']
+                };
+
                 // If the option supplies friendly input names, use them
                 let inputNames = null;
                 if (selectedOption && selectedOption.dataset && selectedOption.dataset.inputNames) {
@@ -299,6 +306,10 @@
                     } catch (e) {
                         inputNames = null;
                     }
+                }
+                // fallback to default mapping when available
+                if (!inputNames && defaultNameMap[count]) {
+                    inputNames = defaultNameMap[count];
                 }
 
                 for (let i = 0; i < count; i++) {
